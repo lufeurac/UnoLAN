@@ -49,95 +49,34 @@ public class Tablero
 
 		Stack<Carta> mazo = new Stack<>();
 		Carta c;
-		for (int i = 1; i < 11; i++) // 10 cartas amarillas
-		{
-			c = new Carta("" + i, i - 1, c1, "no especial", (i - 1 + " " + c1));
-			mazo.add(c);
 
-		}
+		int k = 1;
 
-		for (int i = 11; i < 21; i++) // 10 cartas verdes
+		for (int i = 0; i < 10; i++)
 		{
-			c = new Carta("" + i, i - 11, c2, "no especial", (i - 11 + " " + c2));
-			mazo.add(c);
+			mazo.add(new Carta("" + k++, i, c1, "no especial", (i + " " + c1)));
+			mazo.add(new Carta("" + k++, i, c2, "no especial", (i + " " + c2)));
+			mazo.add(new Carta("" + k++, i, c3, "no especial", (i + " " + c3)));
+			mazo.add(new Carta("" + k++, i, c4, "no especial", (i + " " + c4)));
 		}
 
-		for (int i = 21; i < 31; i++) // 10 cartas rojas
+		for (int i = 0; i < 2; i++)
 		{
-			c = new Carta("" + i, i - 21, c3, "no especial", (i - 21 + " " + c3));
-			mazo.add(c);
-		}
+			mazo.add(new Carta("" + k++, -1, c1, e1, ("+2 " + c1)));
+			mazo.add(new Carta("" + k++, -1, c2, e1, ("+2 " + c2)));
+			mazo.add(new Carta("" + k++, -1, c3, e1, ("+2 " + c3)));
+			mazo.add(new Carta("" + k++, -1, c4, e1, ("+2 " + c4)));
 
-		for (int i = 31; i < 41; i++) // 10 cartas Azul
-		{
-			c = new Carta("" + i, i - 31, c4, "no especial", (i - 31 + " " + c4));
-			mazo.add(c);
-		}
+			mazo.add(new Carta("" + k++, -1, c1, e2, ("↔" + c1)));
+			mazo.add(new Carta("" + k++, -1, c2, e2, ("↔" + c2)));
+			mazo.add(new Carta("" + k++, -1, c3, e2, ("↔" + c3)));
+			mazo.add(new Carta("" + k++, -1, c4, e2, ("↔" + c4)));
 
-		for (int i = 41; i < 43; i++) // 2 cartas Tomados
-		{
-			c = new Carta("" + i, -1, c1, e1, ("+2 " + c1));
-			mazo.add(c);
-		}
+			mazo.add(new Carta("" + k++, -1, c1, e3, ("Ø " + c1)));
+			mazo.add(new Carta("" + k++, -1, c2, e3, ("Ø " + c2)));
+			mazo.add(new Carta("" + k++, -1, c3, e3, ("Ø " + c3)));
+			mazo.add(new Carta("" + k++, -1, c4, e3, ("Ø " + c4)));
 
-		for (int i = 43; i < 45; i++) // 2 cartas Tomados
-		{
-			c = new Carta("" + i, -1, c2, e1, ("+2 " + c2));
-			mazo.add(c);
-		}
-		for (int i = 45; i < 47; i++) // 2 cartas Tomados
-		{
-			c = new Carta("" + i, -1, c3, e1, ("+2 " + c3));
-			mazo.add(c);
-		}
-		for (int i = 47; i < 49; i++) // 2 cartas Tomados
-		{
-			c = new Carta("" + i, -1, c4, e1, ("+2 " + c4));
-			mazo.add(c);
-		}
-
-		for (int i = 49; i < 51; i++) // 2 cartas cambio
-		{
-			c = new Carta("" + i, -1, c1, e2, ("↔" + c1));
-			mazo.add(c);
-		}
-
-		for (int i = 51; i < 53; i++) // 2 cartas cambio
-		{
-			c = new Carta("" + i, -1, c2, e2, ("↔ " + c2));
-			mazo.add(c);
-		}
-		for (int i = 53; i < 55; i++) // 2 cartas cambio
-		{
-			c = new Carta("" + i, -1, c3, e2, ("↔ " + c3));
-			mazo.add(c);
-		}
-		for (int i = 55; i < 57; i++) // 2 cartas cambio
-		{
-			c = new Carta("" + i, -1, c4, e2, ("↔ " + c4));
-			mazo.add(c);
-		}
-
-		for (int i = 57; i < 59; i++) // 2 cartas pierde
-		{
-			c = new Carta("" + i, -1, c1, e3, ("Ø " + c1));
-			mazo.add(c);
-		}
-
-		for (int i = 59; i < 61; i++) // 2 cartas pierde
-		{
-			c = new Carta("" + i, -1, c2, e3, ("Ø " + c2));
-			mazo.add(c);
-		}
-		for (int i = 61; i < 63; i++) // 2 cartas pierde
-		{
-			c = new Carta("" + i, -1, c3, e3, ("Ø " + c3));
-			mazo.add(c);
-		}
-		for (int i = 63; i < 65; i++) // 2 cartas pierde
-		{
-			c = new Carta("" + i, -1, c4, e3, ("Ø " + c4));
-			mazo.add(c);
 		}
 
 		c = new Carta("65", -1, "", e4, "©"); // cambio de color
@@ -342,12 +281,9 @@ public class Tablero
 	{
 		for (Jugador jugadore : jugadores)
 		{
-
 			if (jugadore.getMano().size() == 0) return true;
 		}
-
 		return false;
-
 	}
 
 	void pasarTurno()
@@ -586,6 +522,18 @@ public class Tablero
 	public void setTurno_Actual(Jugador turno_Actual)
 	{
 		this.turno_Actual = turno_Actual;
+	}
+	
+	public Jugador getPlayer(String name)
+	{
+		for (Jugador j : jugadores)
+		{
+			if (name.equals(j.getNombre()))
+			{
+				return j;
+			}
+		}
+		return null;
 	}
 
 	public Jugador getGanador()

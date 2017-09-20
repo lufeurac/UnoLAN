@@ -19,45 +19,61 @@ public class ClientSide
 	{
 		try
 		{
-			//2 lazy 2 comment, mas tarde :V
-			String serverAddress = JOptionPane.showInputDialog("Enter IP Address of a machine that is\n" + "running the date service on port 1234:");
+			String serverAddress = JOptionPane.showInputDialog("Ingrese la ip del servidor:");
 			Socket s = new Socket(serverAddress, 1234);
 			ObjectInputStream in = new ObjectInputStream(s.getInputStream());
 			ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
 			out.flush();
-			
-			String answer = s.getInetAddress().toString();// =
-			System.out.println("connected : " + s);		
+
+			String answer = s.getInetAddress().toString();
+			System.out.println("connected : " + s);
 			Scanner sc = new Scanner(System.in);
-			
+
+			answer = in.readUTF();
+			System.out.println(answer);
+			JOptionPane.showMessageDialog(null, answer);
 			answer = in.readUTF();
 			System.out.println(answer);
 			JOptionPane.showMessageDialog(null, answer);
 			
+			answer = sc.nextLine();
+			out.writeUTF(answer);
+			out.flush();
+			Jugador player = (Jugador) in.readObject();
+			System.out.println(player.getNombre());
+			
+
 			while (true)
 			{
-				answer = sc.nextLine();				
-						
-				out.writeUTF(answer);
-				out.flush();			
+				answer = sc.nextLine();
 
-				//ORDEN IMPORTA!!!
+				out.writeUTF(answer);
+				out.flush();
+
 				if (answer.equals("Exit"))
 				{
 					System.out.println("cerrando");
 					s.close();
-					break;					
+					break;
+				}
+				if (answer.equals("ver cartas"))
+				{
+					player = (Jugador) in.readObject();
+					for (Carta c : player.getMano())
+						System.out.println(c.toString());
 				}
 				answer = in.readUTF();
+
+
 				System.out.println(answer);
 				JOptionPane.showMessageDialog(null, answer);
-				
+
 			}
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-		
+
 	}
 }

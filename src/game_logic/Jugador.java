@@ -1,10 +1,11 @@
 package game_logic;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Jugador
+public class Jugador implements Serializable
 {
 
 	private int id;
@@ -17,6 +18,15 @@ public class Jugador
 		super();
 		this.id = id;
 		this.nombre = nombre;
+		this.mano = new ArrayList<Carta>();
+		this.vis = null;
+	}
+
+	public Jugador()
+	{
+		super();
+		this.id = 0;
+		this.nombre = null;
 		this.mano = new ArrayList<Carta>();
 		this.vis = null;
 	}

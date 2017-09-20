@@ -11,7 +11,7 @@ public class Carta
 
 	public Carta(String id, int numero, String color, String especial, String signo)
 	{
-		this.id = id;
+		this.id = id; 
 		this.numero = numero;
 		this.color = color;
 		this.especial = especial;

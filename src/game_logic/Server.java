@@ -5,39 +5,41 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.channels.ServerSocketChannel;
 import java.util.List;
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 public class Server
 {
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args) throws IOException, InterruptedException
 	{
-		ServerSocket ss = new ServerSocket(1234, 6); // puerto quemado, max 6 conexiones
-		List<Thread> clientes = new ArrayList<Thread>(); // lista de threads, quizas cambiarlo por ids?
-		boolean game_flag = false; // boolean de emergencia
+		List<Thread> clientes = new ArrayList<Thread>();
+		
+		ServerSocket ss = new ServerSocket(1234);
+
+		boolean game_flag = false;
 
 		while (clientes.size() != 4)
 		{
 			Socket s = null;
 			try
 			{
-				// espera a cliente
 				System.out.println("Listening");
-				s = ss.accept(); 
+				s = ss.accept();
 
 				System.out.println("A new client connected : " + s);
 				System.out.println("Assigning new thread for this client");
 
-				// Crea clase de Thread, ver abajo, HAY COMENTARIOS
 				Handler t = new Handler(s);
-				
-				// Inicie al pinche y agreguelo al contenedor (que toca modificar?)
-				clientes.add(t);
+
 				t.start();
-				
-				//cout mostrando cuantos handlers (clientes) se estan ejecutando
+				clientes.add(t);
+				synchronized (t)
+				{
+					t.wait();	
+				}
 				System.out.println("Number of active threads from the given thread: " + Thread.activeCount());
 			}
 			catch (Exception e)
@@ -45,16 +47,27 @@ public class Server
 				s.close();
 				e.printStackTrace();
 			}
+		}		
+		List<Jugador> filler = new ArrayList<>();
+		filler.addAll(Game_logic_bkg.kek.values());
+		for(Jugador s : filler)
+			System.out.println(s.getNombre());
+		Game_logic_bkg.tablero = new Tablero(filler);
+		Game_logic_bkg.tablero.start();
+		
+		for (Thread j : Game_logic_bkg.kek.keySet())
+		{
+			System.out.println(j);
+		}
+		for (Jugador j : Game_logic_bkg.tablero.getJugadores())
+		{
+			System.out.println(j.getNombre());
+			for(Carta c : j.getMano())
+				System.out.println(c.getSigno());
 		}
 		while (!game_flag)
 		{
-			//TODO: inicio del juego y manejo de la rotacion de turnos
-			/*
-			 * 
-			 * MIRAR CLASE TABLERO, quizas crearla como clase publica?
-			 * serialize clientes, asi se chambonean los threads? -> puede ser, entrar a evaluar			 
-			 * 
-			 */			
+
 		}
 	}
 }
@@ -62,7 +75,6 @@ public class Server
 // ClientHandler class
 class Handler extends Thread
 {
-	//Puerto y streams de entrada y salida (VER LA PT DOCUMENTACION >:V)
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
 	private Socket s;
@@ -78,41 +90,79 @@ class Handler extends Thread
 		String read;
 		ObjectOutputStream out;
 		ObjectInputStream in;
-		boolean flag = false; //booleano de emergencia
+		boolean flag = false;
+		Jugador player = new Jugador();
+		Scanner sc = new Scanner(System.in); 
+		
 		try
-		{
-			// Creacion de los Streams y prueba de envio al cliente
+		{		
 			out = new ObjectOutputStream(s.getOutputStream());
 			in = new ObjectInputStream(s.getInputStream());
+			
 			out.writeUTF("Bienvenido al servidor!, esperando jugadores");
-			out.flush(); // EDIT: HACER FLUSH DESPUES DE CADA OUT
-			Scanner sc = new Scanner(System.in); // pa que era esto?
+			out.flush(); 
+			out.writeUTF("Ingrese el nick de jugador: <Nick (player_nickname)>");
+			out.flush(); 
 
 			while (!flag)
 			{
 				try
-				{
-					/*
-					 * Lectura de los comandos que llegan desde el cliente, como se recibe un OBJETO toca castear
-					 * pero ya trae metodo para las strings
-					*/
-					read = in.readUTF();
+				{							
+					
+					while (player.getNombre() == null)
+					{
+						read = in.readUTF();			
+						if (!read.contains("Nick "))
+						{
+							System.out.println("Ingrese bien el comado y el nick");
+							//out.writeUTF("Ingrese bien el comado y el nick");
+							//out.flush();							
+							player.setNombre(read.substring(5));							
+						}
+						else
+						{
+							player.setNombre(read.substring(5));
+							Game_logic_bkg.kek.put(Thread.currentThread(), player);	
+							synchronized (this)
+							{
+								notify();								
+							}
+						}
+					}
+					
+					out.writeObject(player);
+					out.flush();
+					read = in.readUTF();			
+					// 192.168.0.104
 					System.out.println(read);
-
 					switch (read)
 					{
-						//TODO: Insertar funcionalidad de comandos de juego aca
+						
 						case "Pedir carta":
-						
-							break;
-						
-						case "Help": // prueba e conexion constante
-							out.writeUTF("holiwis :3");
-							out.flush();
-							System.out.println("Responde " + this.s);
+
 							break;
 
-						case "Exit": // cierre de puertos EDIT: Sale y mata al thread, pero como que corre 1 vez mas
+						case "ver cartas": 
+							/*if (Game_logic_bkg.check_turn(Thread.currentThread()))
+							{
+
+								out.writeUTF("holiwis :3");
+								out.flush();
+							}
+							else
+							{
+								out.writeUTF("holiwis :3");
+								out.flush();
+								System.out.println("Responde " + this.s);
+								break;
+							}*/		
+							out.writeObject(Game_logic_bkg.tablero.getPlayer(player.getNombre()));
+							out.flush();
+							out.writeUTF("holiwis :3");
+							out.flush();
+							break;
+
+						case "Exit":									
 						{
 							System.out.println("Client " + this.s + " sends exit...");
 							System.out.println("Closing this connection.");
@@ -121,7 +171,8 @@ class Handler extends Thread
 							break;
 						}
 						default:
-							throw new IllegalArgumentException("Comando no reconocido: " + read);
+							// throw new IllegalArgumentException("Comando no
+							// reconocido: " + read);
 					}
 				}
 				catch (IOException e)
@@ -134,8 +185,8 @@ class Handler extends Thread
 		catch (IOException e1)
 		{
 			e1.printStackTrace();
-		}		
-		Thread.currentThread().interrupt(); //kys Thread .I.
+		}
+		Thread.currentThread().interrupt(); // kys Thread .I.
 		return;
 	}
 }
