@@ -15,7 +15,7 @@ import java.util.Stack;
 
 /**
  *
- * @author Nicolás Restrepo
+ * @author NicolÃ¡s Restrepo
  */
 public class Tablero implements Serializable
 {
@@ -68,25 +68,25 @@ public class Tablero implements Serializable
 			mazo.add(new Carta("" + k++, -1, c3, e1, ("+2 " + c3)));
 			mazo.add(new Carta("" + k++, -1, c4, e1, ("+2 " + c4)));
 
-			mazo.add(new Carta("" + k++, -1, c1, e2, ("↔" + c1)));
-			mazo.add(new Carta("" + k++, -1, c2, e2, ("↔" + c2)));
-			mazo.add(new Carta("" + k++, -1, c3, e2, ("↔" + c3)));
-			mazo.add(new Carta("" + k++, -1, c4, e2, ("↔" + c4)));
+			mazo.add(new Carta("" + k++, -1, c1, e2, ("CS " + c1)));
+			mazo.add(new Carta("" + k++, -1, c2, e2, ("CS " + c2)));
+			mazo.add(new Carta("" + k++, -1, c3, e2, ("CS " + c3)));
+			mazo.add(new Carta("" + k++, -1, c4, e2, ("CS " + c4)));
 
-			mazo.add(new Carta("" + k++, -1, c1, e3, ("Ø " + c1)));
-			mazo.add(new Carta("" + k++, -1, c2, e3, ("Ø " + c2)));
-			mazo.add(new Carta("" + k++, -1, c3, e3, ("Ø " + c3)));
-			mazo.add(new Carta("" + k++, -1, c4, e3, ("Ø " + c4)));
+			mazo.add(new Carta("" + k++, -1, c1, e3, ("ST " + c1)));
+			mazo.add(new Carta("" + k++, -1, c2, e3, ("ST " + c2)));
+			mazo.add(new Carta("" + k++, -1, c3, e3, ("ST " + c3)));
+			mazo.add(new Carta("" + k++, -1, c4, e3, ("ST " + c4)));
 
 		}
 
-		c = new Carta("65", -1, "", e4, "©"); // cambio de color
+		c = new Carta("65", -1, "", e4, "CC"); // cambio de color
 		mazo.add(c);
-		c = new Carta("66", -1, "", e4, "©"); // cambio de color
+		c = new Carta("66", -1, "", e4, "CC"); // cambio de color
 		mazo.add(c);
-		c = new Carta("67", -1, "", e4, "©"); // cambio de color
+		c = new Carta("67", -1, "", e4, "CC"); // cambio de color
 		mazo.add(c);
-		c = new Carta("68", -1, "", e4, "©"); // cambio de color
+		c = new Carta("68", -1, "", e4, "CC"); // cambio de color
 		mazo.add(c);
 
 		c = new Carta("69", -1, "", e5, "+4"); // toma cuatro
@@ -97,6 +97,8 @@ public class Tablero implements Serializable
 		mazo.add(c);
 		c = new Carta("71", -1, "", e5, "+4"); // toma cuatro
 		mazo.add(c);
+		
+		
 
 		return mazo;
 
@@ -451,7 +453,7 @@ public class Tablero implements Serializable
 
 				if (jugada.getEspecial().equalsIgnoreCase("CAMBIO DE COLOR"))
 				{
-					jugada.setSigno("©");
+					jugada.setSigno("Â©");
 					jugada.setColor("");
 				}
 

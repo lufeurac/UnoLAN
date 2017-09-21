@@ -11,9 +11,9 @@ public class Game_logic_bkg implements Serializable
 	public static Thread maint;
 	public static Map<Thread, Jugador> kek = new HashMap<>();
 
-	public static boolean check_turn(Thread client)
+	public static boolean check_turn(String client)
 	{
-		if (kek.get(client).equals(tablero.getTurno_Actual()))
+		if (client.equals(tablero.getTurno_Actual().getNombre()))
 		{
 			return true;
 		}

@@ -14,7 +14,7 @@ import java.util.Iterator;
 
 public class Server
 {
-	
+
 	public static void main(String[] args) throws IOException, InterruptedException
 	{
 		Game_logic_bkg.maint = Thread.currentThread();
@@ -53,31 +53,27 @@ public class Server
 		}
 		List<Jugador> filler = new ArrayList<>();
 		filler.addAll(Game_logic_bkg.kek.values());
-		
+
 		Game_logic_bkg.tablero = new Tablero(filler);
 		Game_logic_bkg.tablero.start();
-		try
-		{
-			Game_logic_bkg.maint.notifyAll();			
-		}
-		catch (Exception e)
-		{
-			
-		}
-		//Thread.currentThread().notifyAll();
-		
+
+		Game_logic_bkg.maint.notifyAll();
+		// Thread.currentThread().notifyAll();
+
 		for (Jugador j : Game_logic_bkg.tablero.getJugadores())
 		{
 			System.out.println(j.getNombre());
 			for (Carta c : j.getMano())
 			{
-				System.out.println(c.getSigno()+ " "+ c.getColor());				
+				System.out.println(c.getSigno());
 			}
 		}
+		System.out.println(Game_logic_bkg.tablero.getTurno_Actual().getNombre());
 		while (!game_flag)
 		{
 
 		}
+
 	}
 }
 
@@ -132,7 +128,7 @@ class Handler extends Thread
 						{
 							player.setNombre(read.substring(5));
 							Game_logic_bkg.kek.put(Thread.currentThread(), player);
-							synchronized(this)
+							synchronized (this)
 							{
 								notify();
 							}
@@ -146,9 +142,7 @@ class Handler extends Thread
 							Game_logic_bkg.maint.wait();
 						}
 						player = Game_logic_bkg.tablero.getPlayer(player.getNombre());
-						System.out.println(player.getMano());
 					}
-					System.out.println("toy vivo");
 
 					out.writeObject(player);
 					out.flush();
@@ -161,22 +155,24 @@ class Handler extends Thread
 						case "Pedir carta":
 
 							break;
-							
+
 						case "ver":
-							/*
-							 * if
-							 * (Game_logic_bkg.check_turn(Thread.currentThread()
-							 * )) {
-							 * 
-							 * out.writeUTF("holiwis :3"); out.flush(); } else {
-							 * out.writeUTF("holiwis :3"); out.flush();
-							 * System.out.println("Responde " + this.s); break;
-							 * }
-							 */
-							out.writeObject(Game_logic_bkg.tablero.getPlayer(player.getNombre()));
-							out.flush();
-							out.writeUTF("holiwis :3");
-							out.flush();
+							if (Game_logic_bkg.check_turn(player.getNombre()))
+							{
+								out.writeObject(Game_logic_bkg.tablero.getPlayer(player.getNombre()));
+								out.flush();
+								out.writeUTF("holiwis :3");
+								out.flush();
+							}
+							else
+							{
+								out.writeObject(Game_logic_bkg.tablero.getPlayer(player.getNombre()));
+								out.flush();
+								out.writeUTF("holiwis :3");
+								out.flush();
+								System.out.println("alto ahi rufian >:v");
+							}
+
 							break;
 
 						case "Exit":

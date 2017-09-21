@@ -16,7 +16,7 @@ import javax.swing.JOptionPane;
  */
 public class ClientSide implements Serializable
 {
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args)
 	{
 		try
 		{
