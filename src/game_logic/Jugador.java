@@ -2,86 +2,62 @@ package game_logic;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
 public class Jugador implements Serializable
 {
 
-	private int id;
 	private String nombre;
 	private List<Carta> mano;
-	private Visible vis;
-
-	public Jugador(int id, String nombre)
+	
+	public Jugador(String nombre)
 	{
 		super();
-		this.id = id;
 		this.nombre = nombre;
 		this.mano = new ArrayList<Carta>();
-		this.vis = null;
+		
 	}
 
 	public Jugador()
 	{
 		super();
-		this.id = 0;
 		this.nombre = null;
 		this.mano = new ArrayList<Carta>();
-		this.vis = null;
+		
 	}
 
-	void showVisible(List<Jugador> oponentes, Carta carta)
+	public String showVisible(HashMap <String,Integer> cartasOponentes, Carta carta)
 	{
-		System.out.println("\n\n");
-		System.out.println("Mano:");
-		for (Carta carta1 : this.getMano())
-		{
-			System.out.println(carta1.getId() + ". " + carta1.getSigno() + "\t");
-		}
-		System.out.println("\nNumero cartas de oponentes: ");
+		String ret="";
+                
+                ret+=("\n\n");
+		
+            ret+=("\nNumero cartas de oponentes: ");
 
-		for (Jugador oponente : oponentes)
-		{
-			System.out.println(oponente.getNombre() + "-> " + oponente.getMano().size() + "\t");
-		}
+            // imprmir numero cartas oponente
+            for (HashMap.Entry<String, Integer> entry : cartasOponentes.entrySet()) {
+                ret+=("\nJugador: " + entry.getKey() + " tiene "+ entry.getValue()+ " cartas. ");
+            }
 
-		System.out.println("\nCarta actual: ");
-		System.out.println(carta.getId() + ". " + carta.getSigno());
+            ret+=("\n Ultima carta jugada: ");
+            ret+=("\n"+carta.getSigno());
 
-		System.out.println("\nTurno de: ");
-		System.out.println(this.getId());
+		ret+=("\nTurno de: ");
+		ret+=("\n"+this.getNombre());
+                return ret;
 	}
 
-	Carta cartaAJugar(boolean robar)
-	{
-		if (!robar)
-		{
-			return new Carta("robar", -10, null, null, null);
-		}
 
-		System.out.println("Digite Id de carta que desea jugar: ");
-		Scanner keyboard = new Scanner(System.in);
-		String id = keyboard.nextLine();
 
-		Carta elegida = null;
-		for (Carta carta : mano)
-		{
-			if (id.equalsIgnoreCase(carta.getId()))
-			{
-				elegida = carta;
-				// System.out.println("encontre el id");
-			}
-		}
-		return elegida;
-	}
-
-	void hacerJugada(Carta jugada)
+	public void hacerJugada(Carta jugada)
 	{
 		for (Carta carta : mano)
 		{
-			if (jugada.getId().equalsIgnoreCase(carta.getId()))
+			if (jugada==carta)
 			{
+                                System.out.println("Removiendo la carta " + jugada.getSigno());
 				mano.remove(carta);
 				break;
 			}
@@ -91,23 +67,31 @@ public class Jugador implements Serializable
 	void robar(Carta pop)
 	{
 		this.mano.add(pop);
+                System.out.println("\n\n-- Robo Automatico --");
 		System.out.println("NO HAY JUGADAS POSIBLE, ROBA");
-		System.out.println("Nueva mano despues de robar:");
+		System.out.println("Nueva mano despues de robar: \n\n");
+                
+                
+	}
+
+    public String showMano() {
+        String ret ="";
+        
+        int i=1;
 		for (Carta carta : mano)
 		{
-			System.out.println(carta.getId() + " " + carta.getSigno());
+			ret+=("\n"+i+". "+ carta.getSigno());
+                        ++i;
 		}
-	}
-
-	public int getId()
-	{
-		return id;
-	}
-
-	public void setId(int id)
-	{
-		this.id = id;
-	}
+                
+       return ret;
+        
+     }
+    
+     public  void addCarta(Carta c) {
+         
+         this.mano.add(c);
+        }
 
 	public String getNombre()
 	{
@@ -129,14 +113,11 @@ public class Jugador implements Serializable
 		this.mano = mano;
 	}
 
-	public Visible getVis()
-	{
-		return vis;
-	}
 
-	public void setVis(Visible vis)
-	{
-		this.vis = vis;
-	}
+
+
+   
+
+	
 
 }

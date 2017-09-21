@@ -36,20 +36,26 @@ public class Main
 			System.out.println("Digite nombre para jugador" + (i + 1));
 			keyboard = new Scanner(System.in);
 			String nombre = keyboard.nextLine();
-			Jugador j = new Jugador((i + 1), nombre);
+			Jugador j = new Jugador(nombre);
 			jugadores.add(j);
 		}
 
 		tablero = new Tablero(jugadores);
 
 		tablero.start();
-
+                String g="";
 		while (!tablero.existeGanador())
 		{
-			tablero.gestionTurnos();
+			//tablero.gestionTurnos();
+                         g= tablero.getTurno_Actual().getNombre();
 			tablero.pasarTurno();
 		}
-		tablero.existeGanadorImp();
+		          System.out.println("-----------------------\n\n");
+                          System.out.println("GANADOR!!!!!!!!!:");
+                          System.out.println(g);
+                          System.out.println("FELICIDADES!!!!!!");
+                          System.out.println("-----------------------\n\n");
+                          
 
 	}
 
