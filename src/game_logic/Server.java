@@ -172,7 +172,6 @@ class Handler extends Thread
 								out.flush();
 								System.out.println("alto ahi rufian >:v");
 							}
-
 							break;
 
 						case "Exit":
