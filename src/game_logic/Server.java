@@ -10,13 +10,16 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class Server
 {
+	
 	public static void main(String[] args) throws IOException, InterruptedException
 	{
+		Game_logic_bkg.maint = Thread.currentThread();
 		List<Thread> clientes = new ArrayList<Thread>();
-		
+
 		ServerSocket ss = new ServerSocket(1234);
 
 		boolean game_flag = false;
@@ -38,7 +41,7 @@ public class Server
 				clientes.add(t);
 				synchronized (t)
 				{
-					t.wait();	
+					t.wait();
 				}
 				System.out.println("Number of active threads from the given thread: " + Thread.activeCount());
 			}
@@ -47,23 +50,29 @@ public class Server
 				s.close();
 				e.printStackTrace();
 			}
-		}		
+		}
 		List<Jugador> filler = new ArrayList<>();
 		filler.addAll(Game_logic_bkg.kek.values());
-		for(Jugador s : filler)
-			System.out.println(s.getNombre());
+		
 		Game_logic_bkg.tablero = new Tablero(filler);
 		Game_logic_bkg.tablero.start();
-		
-		for (Thread j : Game_logic_bkg.kek.keySet())
+		try
 		{
-			System.out.println(j);
+			Game_logic_bkg.maint.notifyAll();			
 		}
+		catch (Exception e)
+		{
+			
+		}
+		//Thread.currentThread().notifyAll();
+		
 		for (Jugador j : Game_logic_bkg.tablero.getJugadores())
 		{
 			System.out.println(j.getNombre());
-			for(Carta c : j.getMano())
-				System.out.println(c.getSigno());
+			for (Carta c : j.getMano())
+			{
+				System.out.println(c.getSigno()+ " "+ c.getColor());				
+			}
 		}
 		while (!game_flag)
 		{
@@ -92,77 +101,85 @@ class Handler extends Thread
 		ObjectInputStream in;
 		boolean flag = false;
 		Jugador player = new Jugador();
-		Scanner sc = new Scanner(System.in); 
-		
+		Scanner sc = new Scanner(System.in);
+
 		try
-		{		
+		{
 			out = new ObjectOutputStream(s.getOutputStream());
 			in = new ObjectInputStream(s.getInputStream());
-			
+
 			out.writeUTF("Bienvenido al servidor!, esperando jugadores");
-			out.flush(); 
+			out.flush();
 			out.writeUTF("Ingrese el nick de jugador: <Nick (player_nickname)>");
-			out.flush(); 
+			out.flush();
 
 			while (!flag)
 			{
 				try
-				{							
-					
+				{
+
 					while (player.getNombre() == null)
 					{
-						read = in.readUTF();			
+						read = in.readUTF();
 						if (!read.contains("Nick "))
 						{
 							System.out.println("Ingrese bien el comado y el nick");
-							//out.writeUTF("Ingrese bien el comado y el nick");
-							//out.flush();							
-							player.setNombre(read.substring(5));							
+							// out.writeUTF("Ingrese bien el comado y el nick");
+							// out.flush();
+							player.setNombre(read.substring(5));
 						}
 						else
 						{
 							player.setNombre(read.substring(5));
-							Game_logic_bkg.kek.put(Thread.currentThread(), player);	
-							synchronized (this)
+							Game_logic_bkg.kek.put(Thread.currentThread(), player);
+							synchronized(this)
 							{
-								notify();								
+								notify();
 							}
 						}
 					}
-					
+
+					if (player.getId() == 0)
+					{
+						synchronized (Game_logic_bkg.maint)
+						{
+							Game_logic_bkg.maint.wait();
+						}
+						player = Game_logic_bkg.tablero.getPlayer(player.getNombre());
+						System.out.println(player.getMano());
+					}
+					System.out.println("toy vivo");
+
 					out.writeObject(player);
 					out.flush();
-					read = in.readUTF();			
+					read = in.readUTF();
 					// 192.168.0.104
 					System.out.println(read);
 					switch (read)
 					{
-						
+
 						case "Pedir carta":
 
 							break;
-
-						case "ver cartas": 
-							/*if (Game_logic_bkg.check_turn(Thread.currentThread()))
-							{
-
-								out.writeUTF("holiwis :3");
-								out.flush();
-							}
-							else
-							{
-								out.writeUTF("holiwis :3");
-								out.flush();
-								System.out.println("Responde " + this.s);
-								break;
-							}*/		
+							
+						case "ver":
+							/*
+							 * if
+							 * (Game_logic_bkg.check_turn(Thread.currentThread()
+							 * )) {
+							 * 
+							 * out.writeUTF("holiwis :3"); out.flush(); } else {
+							 * out.writeUTF("holiwis :3"); out.flush();
+							 * System.out.println("Responde " + this.s); break;
+							 * }
+							 */
 							out.writeObject(Game_logic_bkg.tablero.getPlayer(player.getNombre()));
 							out.flush();
 							out.writeUTF("holiwis :3");
 							out.flush();
 							break;
 
-						case "Exit":									
+						case "Exit":
 						{
 							System.out.println("Client " + this.s + " sends exit...");
 							System.out.println("Closing this connection.");
@@ -178,6 +195,11 @@ class Handler extends Thread
 				catch (IOException e)
 				{
 					e.getMessage();
+				}
+				catch (InterruptedException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
 			System.out.println("Connection closed");

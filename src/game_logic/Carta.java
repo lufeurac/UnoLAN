@@ -1,7 +1,10 @@
 package game_logic;
 
-public class Carta
+import java.io.Serializable;
+
+public class Carta implements Serializable
 {
+
 	private int numero;
 	private String id;
 	private String color;
@@ -68,4 +71,9 @@ public class Carta
 		this.especial = especial;
 	}
 
+	public String toString()
+	{
+		return "Carta [numero=" + numero + ", id=" + id + ", color=" + color + ", signo=" + signo + ", especial=" + especial + "]";
+	}
 }
+

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -13,7 +14,7 @@ import javax.swing.JOptionPane;
 /**
  * Trivial client for the date server.
  */
-public class ClientSide
+public class ClientSide implements Serializable
 {
 	public static void main(String[] args) throws IOException
 	{
@@ -56,11 +57,12 @@ public class ClientSide
 					s.close();
 					break;
 				}
-				if (answer.equals("ver cartas"))
+				if (answer.equals("ver"))
 				{
 					player = (Jugador) in.readObject();
 					for (Carta c : player.getMano())
 						System.out.println(c.toString());
+					answer = sc.nextLine();
 				}
 				answer = in.readUTF();
 

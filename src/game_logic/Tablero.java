@@ -1,5 +1,6 @@
 package game_logic;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.Stack;
  *
  * @author Nicolás Restrepo
  */
-public class Tablero
+public class Tablero implements Serializable
 {
 
 	private Stack<Carta> mazo;
