@@ -385,7 +385,7 @@ public class Tablero implements Serializable
 		if (especial.getEspecial().equalsIgnoreCase("PIERDE TURNO"))
 		{
 			ret += ("\n" + "Jugador que pierde turno: " + jugadores.get(1).getNombre());
-			pasarTurno();
+			
 		}
 
 		return ret;
