@@ -8,7 +8,7 @@ public class Carta implements Serializable
 	private String color;
 	private String signo;
 	private String especial; // toma 2 , retorno , bloqueo , cambio color, toma
-							 // 4, NULL si no es esepcial
+								// 4, NULL si no es esepcial
 
 	public Carta(int numero, String color, String especial, String signo)
 	{
@@ -27,7 +27,6 @@ public class Carta implements Serializable
 	{
 		this.signo = signo;
 	}
-
 
 	public int getNumero()
 	{

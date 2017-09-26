@@ -197,11 +197,8 @@ public class ClientSide
 					}
 					case "ver cartas":
 					{
-						player = (Jugador) in.readObject();
-						for (Carta c : player.getMano())
-						{
-							System.out.println(c.toString());
-						}
+						imp = in.readUTF();
+						System.out.println(imp);
 						break;
 					}
 					default:

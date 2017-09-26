@@ -27,7 +27,7 @@ public class Server
 
 		boolean game_flag = false;
 
-		while (clientes.size() != 2)
+		while (clientes.size() != 1)
 		{
 			Socket s = null;
 			try
@@ -156,7 +156,7 @@ class Handler extends Thread
 						Game_logic_bkg.maint.wait();
 					}
 
-					player = Game_logic_bkg.tablero.getPlayer(name);
+					player = Game_logic_bkg.tablero.getPlayer(player.getNombre());
 
 					// Info about the game is sent to the Player(client)
 					out.writeObject(player);
@@ -165,6 +165,7 @@ class Handler extends Thread
 					out.writeUTF(Game_logic_bkg.tablero.mostrarTurno());
 					out.flush();
 				}
+				System.out.println(player.showMano());
 
 				// Reads the commands that the Player(client) writes
 				read = in.readUTF();
@@ -310,10 +311,12 @@ class Handler extends Thread
 
 					case "ver cartas":
 					{
-						out.writeObject(Game_logic_bkg.tablero.getPlayer(name));
+						out.writeUTF("ver cartas");
 						out.flush();
-					}
+						out.writeUTF(player.showMano());
+						out.flush();
 						break;
+					}
 
 					case "Exit":
 					{
