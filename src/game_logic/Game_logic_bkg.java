@@ -43,6 +43,8 @@ public class Game_logic_bkg implements Serializable
 		return null;
 	}
 
+	
+	//https://stackoverflow.com/questions/17206932/determine-which-thread-owns-a-monitor/17208717#17208717
 	public static long getMonitorOwner(Object obj)
 	{
 		if (Thread.holdsLock(obj)) return Thread.currentThread().getId();

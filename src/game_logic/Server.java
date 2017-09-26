@@ -7,12 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.locks.Lock;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Server
 {
@@ -346,16 +341,11 @@ class Handler extends Thread
 
 	private void cartaEspecial(ObjectOutputStream out, ObjectInputStream in, Carta jugada) throws IOException
 	{
-
 		if (jugada.getEspecial().equalsIgnoreCase("CAMBIO DE COLOR") || jugada.getEspecial().equalsIgnoreCase("TOMA CUATRO"))
 		{
-
 			out.writeUTF("Digite A para amarillo, V para verde, R para rojo, AZ para azul:");
 			out.flush();
-
 			System.out.println(in.readUTF());
-
 		}
-
 	}
 }
