@@ -24,7 +24,7 @@ public class Tablero implements Serializable
 	private List<Jugador> jugadores;
 	private Jugador turno_Actual;
 	private Jugador ganador;
-	private Stack<Carta> jugadas;	
+	private Stack<Carta> jugadas;
 
 	public Tablero(List<Jugador> jugadores)
 	{
@@ -385,7 +385,7 @@ public class Tablero implements Serializable
 		if (especial.getEspecial().equalsIgnoreCase("PIERDE TURNO"))
 		{
 			ret += ("\n" + "Jugador que pierde turno: " + jugadores.get(1).getNombre());
-			pasarTurno();
+			
 		}
 
 		return ret;
@@ -433,10 +433,10 @@ public class Tablero implements Serializable
 	{
 
 		if (this.mazo.size() == 1)
-		{ 
+		{
 
 			System.out.println("Se esta llenando el mazo con las cartas utilizadas");
-			Carta actual = this.jugadas.pop(); 
+			Carta actual = this.jugadas.pop();
 			for (Carta jugada : this.jugadas)
 			{
 

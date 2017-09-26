@@ -43,19 +43,18 @@ public class Main
 		tablero = new Tablero(jugadores);
 
 		tablero.start();
-                String g="";
+		String g = "";
 		while (!tablero.existeGanador())
 		{
-			//tablero.gestionTurnos();
-                         g= tablero.getTurno_Actual().getNombre();
+			// tablero.gestionTurnos();
+			g = tablero.getTurno_Actual().getNombre();
 			tablero.pasarTurno();
 		}
-		          System.out.println("-----------------------\n\n");
-                          System.out.println("GANADOR!!!!!!!!!:");
-                          System.out.println(g);
-                          System.out.println("FELICIDADES!!!!!!");
-                          System.out.println("-----------------------\n\n");
-                          
+		System.out.println("-----------------------\n\n");
+		System.out.println("GANADOR!!!!!!!!!:");
+		System.out.println(g);
+		System.out.println("FELICIDADES!!!!!!");
+		System.out.println("-----------------------\n\n");
 
 	}
 

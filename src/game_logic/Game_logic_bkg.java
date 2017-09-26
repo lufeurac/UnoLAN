@@ -1,5 +1,10 @@
 package game_logic;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,5 +62,62 @@ public class Game_logic_bkg implements Serializable
 			}
 		}
 		return 0;
+	}
+
+	public static void save_state()
+	{
+		File outFile = new File("./save_state.txt");
+		FileOutputStream outStream = null;
+		PrintWriter dataOutStream = null;
+		String temp;
+		try
+		{
+			outStream = new FileOutputStream(outFile);
+			dataOutStream = new PrintWriter(outStream);
+			dataOutStream.println("UNOlan save-state");
+			dataOutStream.println("Server running on: " + maint.toString());
+			dataOutStream.println("---------------------------------------------");
+			temp = "Players: \n";
+			
+			for(Thread t : kek.keySet())
+			{
+				dataOutStream.println(kek.get(t).getNombre() + " running on " + t.toString());
+			}
+			dataOutStream.println("---------------------------------------------");
+			dataOutStream.println("Status:");
+			dataOutStream.println("---------------------------------------------");			
+			for(Jugador j : tablero.getJugadores())
+			{
+				dataOutStream.println(j.getNombre() + " cards: \n" + j.showMano());
+			}
+			dataOutStream.println("---------------------------------------------");
+			dataOutStream.println(tablero.mostrarTurno());
+			dataOutStream.println("---------------------------------------------");
+		}
+		catch (FileNotFoundException e)
+		{
+			System.out.println("Error en ruta de archivo:" + e.getMessage());
+		}
+		catch (IOException e)
+		{
+			System.out.println("Error grabando el archivo:" + e.getMessage());
+		}
+		catch (Exception e)
+		{
+			System.out.println("excepcion inesperada:" + e.getMessage());
+		}
+		finally
+		{
+			try
+			{
+				dataOutStream.close();
+				outStream.close();
+			}
+			catch (IOException e)
+			{
+				System.out.println("excepcion cerrando el archivo:" + e.getMessage());
+			}
+		}
+
 	}
 }

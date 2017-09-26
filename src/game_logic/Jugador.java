@@ -46,7 +46,7 @@ public class Jugador implements Serializable
 		ret += ("\n" + carta.getSigno());
 
 		ret += ("\nTurno de: ");
-		ret += ("\n" + this.getNombre()+"\n");
+		ret += ("\n" + this.getNombre() + "\n");
 		return ret;
 	}
 

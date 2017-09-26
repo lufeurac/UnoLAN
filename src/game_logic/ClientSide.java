@@ -22,11 +22,12 @@ public class ClientSide
 		Jugador player = new Jugador();
 		boolean game_started = false;
 		boolean nick_accepted;
+		Socket s = null;
 
 		try
 		{
 			String serverAddress = JOptionPane.showInputDialog("Ingrese la ip del servidor:");
-			Socket s = new Socket(serverAddress, 1234);
+			s = new Socket(serverAddress, 1234);
 			ObjectInputStream in = new ObjectInputStream(s.getInputStream());
 			ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
 			out.flush();
@@ -155,7 +156,7 @@ public class ClientSide
 							out.writeObject(manonueva);
 							out.flush();
 
-							System.out.println("Carta jugadda satisfactoriamente");
+							System.out.println("Carta jugada satisfactoriamente");
 							System.out.println(in.readUTF());
 							break;
 
@@ -197,23 +198,22 @@ public class ClientSide
 					}
 					case "ver cartas":
 					{
-						player = (Jugador) in.readObject();
-						for (Carta c : player.getMano())
-						{
-							System.out.println(c.toString());
-						}
+						imp = in.readUTF();
+						System.out.println(imp);
 						break;
 					}
 					default:
+						System.out.println("Comandos: \n <Exit>: desconectarse del servidor \n <ver cartas>: muestra la mano del jugador \n" +
+							"<elegir carta>: selecciona la accion para realizar en un turno \n <mostrar mesa>: muestra el estado del juego");						
 						break;
 				}
 
-				// System.out.println(answer);
 			}
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			System.out.println("cerrando");
+			s.close();
 		}
 
 	}

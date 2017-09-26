@@ -68,11 +68,22 @@ public class Server
 		System.out.println("TOY VIVO :3");
 		while (!game_flag)
 		{
-			// System.out.println("TOY VIVO :3");
+			for (Thread t : Game_logic_bkg.kek.keySet())
+			{
+				if (!t.isAlive())
+				{
+					ss.close();
+					for (Thread t2 : Game_logic_bkg.kek.keySet())
+						t2.interrupt();
+					
+					System.out.println("DESCONEXION INESPERADA - PARANDO JUEGO");
+					game_flag = true;
+				}
+			}
+			Game_logic_bkg.save_state();
 		}
-		// TODO: handle exception
-
-	}
+		Thread.currentThread().interrupt();
+	}	
 }
 
 // ClientHandler class
@@ -156,7 +167,7 @@ class Handler extends Thread
 						Game_logic_bkg.maint.wait();
 					}
 
-					player = Game_logic_bkg.tablero.getPlayer(name);
+					player = Game_logic_bkg.tablero.getPlayer(player.getNombre());
 
 					// Info about the game is sent to the Player(client)
 					out.writeObject(player);
@@ -165,7 +176,6 @@ class Handler extends Thread
 					out.writeUTF(Game_logic_bkg.tablero.mostrarTurno());
 					out.flush();
 				}
-
 				// Reads the commands that the Player(client) writes
 				read = in.readUTF();
 				System.out.println("lei: " + read);
@@ -176,17 +186,9 @@ class Handler extends Thread
 					{
 						out.writeUTF("mostar mesa");
 						out.flush();
+						out.writeUTF(Game_logic_bkg.tablero.mostrarTurno());
+						out.flush();
 
-						if (Game_logic_bkg.check_turn(name))
-						{
-							out.writeUTF(Game_logic_bkg.tablero.mostrarTurno());
-							out.flush();
-						}
-						else
-						{
-							out.writeUTF("no es tu turno");
-							out.flush();
-						}
 						break;
 					}
 					case "elegir carta":
@@ -282,10 +284,8 @@ class Handler extends Thread
 									}
 									else
 									{
-
 										out.writeUTF(Game_logic_bkg.tablero.jugadaEspecialSinPregunta(jugada));
 										out.flush();
-
 									}
 								}
 
@@ -296,7 +296,10 @@ class Handler extends Thread
 
 								out.writeUTF("FIN DE SU TURNO");
 								out.flush();
-
+								if (jugada.getEspecial().equals("PIERDE TURNO"))
+								{
+									Game_logic_bkg.tablero.pasarTurno();
+								}
 								Game_logic_bkg.tablero.pasarTurno();
 							}
 						}
@@ -310,10 +313,18 @@ class Handler extends Thread
 
 					case "ver cartas":
 					{
-						out.writeObject(Game_logic_bkg.tablero.getPlayer(name));
+						out.writeUTF("ver cartas");
+						out.flush();
+						out.writeUTF(player.showMano());
+						out.flush();
+						break;
+					}
+
+					case "Ayuda":
+					{
+						out.writeUTF("cmd");
 						out.flush();
 					}
-						break;
 
 					case "Exit":
 					{
@@ -324,13 +335,16 @@ class Handler extends Thread
 						break;
 					}
 					default:
+						out.writeUTF("cmd");
+						out.flush();
 						break;
 				}
+				if (!(Game_logic_bkg.tablero.getGanador() == null)) flag = true;
 			}
 
 			System.out.println("Connection closed");
 		}
-		catch (IOException | ClassNotFoundException | InterruptedException e)
+		catch (IOException | ClassNotFoundException | InterruptedException | NullPointerException e)
 		{
 			e.printStackTrace();
 		}
