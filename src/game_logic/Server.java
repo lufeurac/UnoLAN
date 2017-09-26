@@ -82,6 +82,7 @@ public class Server
 			}
 			Game_logic_bkg.save_state();
 		}
+		Thread.currentThread().interrupt();
 	}	
 }
 
