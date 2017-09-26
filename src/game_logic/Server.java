@@ -7,10 +7,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.locks.Lock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Server
 {
@@ -18,13 +20,14 @@ public class Server
 	public static void main(String[] args) throws IOException, InterruptedException
 	{
 		Game_logic_bkg.maint = Thread.currentThread();
+
 		List<Thread> clientes = new ArrayList<Thread>();
 
 		ServerSocket ss = new ServerSocket(1234);
 
 		boolean game_flag = false;
 
-		while (clientes.size() != 4)
+		while (clientes.size() != 2)
 		{
 			Socket s = null;
 			try
@@ -57,22 +60,17 @@ public class Server
 		Game_logic_bkg.tablero = new Tablero(filler);
 		Game_logic_bkg.tablero.start();
 
-		Game_logic_bkg.maint.notifyAll();
-		// Thread.currentThread().notifyAll();
-
-		for (Jugador j : Game_logic_bkg.tablero.getJugadores())
+		synchronized (Game_logic_bkg.maint)
 		{
-			System.out.println(j.getNombre());
-			for (Carta c : j.getMano())
-			{
-				System.out.println(c.getSigno());
-			}
+			Game_logic_bkg.maint.notifyAll();
 		}
-		System.out.println(Game_logic_bkg.tablero.getTurno_Actual().getNombre());
+
+		System.out.println("TOY VIVO :3");
 		while (!game_flag)
 		{
-
+			// System.out.println("TOY VIVO :3");
 		}
+		// TODO: handle exception
 
 	}
 }
@@ -80,6 +78,7 @@ public class Server
 // ClientHandler class
 class Handler extends Thread
 {
+
 	private ObjectInputStream in;
 	private ObjectOutputStream out;
 	private Socket s;
@@ -91,11 +90,13 @@ class Handler extends Thread
 
 	public void run()
 	{
-		String write;
+		String name = null;
 		String read;
 		ObjectOutputStream out;
 		ObjectInputStream in;
 		boolean flag = false;
+		boolean new_player = false;
+		boolean game_started = false;
 		Jugador player = new Jugador();
 		Scanner sc = new Scanner(System.in);
 
@@ -104,106 +105,254 @@ class Handler extends Thread
 			out = new ObjectOutputStream(s.getOutputStream());
 			in = new ObjectInputStream(s.getInputStream());
 
-			out.writeUTF("Bienvenido al servidor!, esperando jugadores");
+			out.writeUTF("Bienvenido al servidor!");
 			out.flush();
 			out.writeUTF("Ingrese el nick de jugador: <Nick (player_nickname)>");
 			out.flush();
 
 			while (!flag)
 			{
-				try
+				// Asks the Player(client) for a nickname as an id
+				while (!new_player)
 				{
-
-					while (player.getNombre() == null)
+					read = in.readUTF();
+					if (!read.contains("Nick "))
 					{
-						read = in.readUTF();
-						if (!read.contains("Nick "))
+						System.out.println("Ingrese bien el comando y el nick");
+						out.writeBoolean(false);
+						out.flush();
+					}
+					else
+					{
+						// Checks if the nickname is being used
+						if (Game_logic_bkg.check_nicknames(read.substring(5)))
 						{
-							System.out.println("Ingrese bien el comado y el nick");
-							// out.writeUTF("Ingrese bien el comado y el nick");
-							// out.flush();
-							player.setNombre(read.substring(5));
+							out.writeBoolean(false);
+							out.flush();
 						}
 						else
 						{
+							out.writeBoolean(true);
+							out.flush();
+
 							player.setNombre(read.substring(5));
+							name = player.getNombre();
+
 							Game_logic_bkg.kek.put(Thread.currentThread(), player);
 							synchronized (this)
 							{
 								notify();
 							}
+							new_player = true;
 						}
 					}
-
-					if (player.getId() == 0)
+				}
+				// Thread waits until the server gets 4 players and then the
+				// game starts
+				if (!game_started)
+				{
+					synchronized (Game_logic_bkg.maint)
 					{
-						synchronized (Game_logic_bkg.maint)
-						{
-							Game_logic_bkg.maint.wait();
-						}
-						player = Game_logic_bkg.tablero.getPlayer(player.getNombre());
+						Game_logic_bkg.maint.wait();
 					}
 
+					player = Game_logic_bkg.tablero.getPlayer(name);
+
+					// Info about the game is sent to the Player(client)
 					out.writeObject(player);
 					out.flush();
-					read = in.readUTF();
-					// 192.168.0.104
-					System.out.println(read);
-					switch (read)
+					game_started = true;
+					out.writeUTF(Game_logic_bkg.tablero.mostrarTurno());
+					out.flush();
+				}
+
+				// Reads the commands that the Player(client) writes
+				read = in.readUTF();
+				System.out.println("lei: " + read);
+
+				switch (read)
+				{
+					case "mostrar mesa":
 					{
+						out.writeUTF("mostar mesa");
+						out.flush();
 
-						case "Pedir carta":
-
-							break;
-
-						case "ver":
-							if (Game_logic_bkg.check_turn(player.getNombre()))
-							{
-								out.writeObject(Game_logic_bkg.tablero.getPlayer(player.getNombre()));
+						if (Game_logic_bkg.check_turn(name))
+						{
+							out.writeUTF(Game_logic_bkg.tablero.mostrarTurno());
+							out.flush();
+						}
+						else
+						{
+							out.writeUTF("no es tu turno");
+							out.flush();
+						}
+						break;
+					}
+					case "elegir carta":
+					{
+						if (Game_logic_bkg.check_turn(player.getNombre()))
+						{
+							if (Game_logic_bkg.tablero.comprobarRobar())
+							{ // si tiene que robar
+								out.writeUTF("robar");
 								out.flush();
-								out.writeUTF("holiwis :3");
+
+								out.writeObject(Game_logic_bkg.tablero.getManoFromPlayer(player.getNombre()));
 								out.flush();
+
+								Carta c = Game_logic_bkg.tablero.robar();
+								out.writeObject(c);
+								out.flush();
+
+								List<Carta> mano2 = (List<Carta>) in.readObject();
+								Game_logic_bkg.tablero.getTurno_Actual().setMano(mano2);
+								System.out.println("Mano de: " + Game_logic_bkg.tablero.getTurno_Actual().getMano().size());
+
+								out.writeUTF("FIN DE SU TURNO");
+								out.flush();
+
+								Game_logic_bkg.tablero.pasarTurno();
+
+								break;
+
 							}
 							else
 							{
-								out.writeObject(Game_logic_bkg.tablero.getPlayer(player.getNombre()));
+								out.writeUTF("elegir carta");
 								out.flush();
-								out.writeUTF("holiwis :3");
-								out.flush();
-								System.out.println("alto ahi rufian >:v");
-							}
-							break;
 
-						case "Exit":
-						{
-							System.out.println("Client " + this.s + " sends exit...");
-							System.out.println("Closing this connection.");
-							this.s.close();
-							flag = true;
-							break;
+								out.writeObject(Game_logic_bkg.tablero.getManoFromPlayer(player.getNombre()));
+								out.flush();
+
+								out.writeBoolean(Game_logic_bkg.tablero.comprobarRobar());
+								out.flush();
+
+								Carta jugada = (Carta) in.readObject();
+								System.out.println(jugada.getSigno());
+
+								boolean logica = Game_logic_bkg.tablero.checkLogic(jugada);
+
+								out.writeBoolean(logica);
+								out.flush();
+
+								while (!logica)
+								{
+									jugada = (Carta) in.readObject();
+
+									logica = Game_logic_bkg.tablero.checkLogic(jugada);
+									out.writeBoolean(logica);
+									out.flush();
+
+								}
+
+								if (!jugada.getEspecial().equals("no especial"))
+								{
+									if (jugada.getEspecial().equals("CAMBIO DE COLOR") || jugada.getEspecial().equals("TOMA CUATRO"))
+									{
+										System.out.println("ENTRA");
+										out.writeUTF("Digite A para amarillo, V para verde, R para rojo, AZ para azul: ");
+										out.flush();
+
+										String col = (in.readUTF());
+
+										if (col.equalsIgnoreCase("a"))
+										{
+											col = "Amarillo";
+										}
+										else if (col.equalsIgnoreCase("v"))
+										{
+											col = "Verde";
+										}
+										else if (col.equalsIgnoreCase("r"))
+										{
+											col = ("Rojo");
+										}
+										else if (col.equalsIgnoreCase("az"))
+										{
+											col = ("Azul");
+										}
+										else
+										{
+											col = ("Azul");
+										}
+										System.out.println("col:" + col);
+										out.writeUTF(Game_logic_bkg.tablero.jugadaCartaEspecialColor(jugada, col));
+										out.flush();
+									}
+									else
+									{
+
+										out.writeUTF(Game_logic_bkg.tablero.jugadaEspecialSinPregunta(jugada));
+										out.flush();
+
+									}
+								}
+
+								Game_logic_bkg.tablero.JugarCarta(jugada);
+								List<Carta> mano2 = (List<Carta>) in.readObject();
+								Game_logic_bkg.tablero.getTurno_Actual().setMano(mano2);
+								System.out.println("Mano de: " + Game_logic_bkg.tablero.getTurno_Actual().getMano().size());
+
+								out.writeUTF("FIN DE SU TURNO");
+								out.flush();
+
+								Game_logic_bkg.tablero.pasarTurno();
+							}
 						}
-						default:
-							// throw new IllegalArgumentException("Comando no
-							// reconocido: " + read);
+						else
+						{
+							out.writeUTF("no es tu turno");
+							out.flush();
+						}
+						break;
 					}
-				}
-				catch (IOException e)
-				{
-					e.getMessage();
-				}
-				catch (InterruptedException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+
+					case "ver cartas":
+					{
+						out.writeObject(Game_logic_bkg.tablero.getPlayer(name));
+						out.flush();
+					}
+						break;
+
+					case "Exit":
+					{
+						System.out.println("Client " + this.s + " sends exit...");
+						System.out.println("Closing this connection.");
+						this.s.close();
+						flag = true;
+						break;
+					}
+					default:
+						break;
 				}
 			}
+
 			System.out.println("Connection closed");
 		}
-		catch (IOException e1)
+		catch (IOException | ClassNotFoundException | InterruptedException e)
 		{
-			e1.printStackTrace();
+			e.printStackTrace();
 		}
-		Thread.currentThread().interrupt(); // kys Thread .I.
+		finally
+		{
+			Thread.currentThread().interrupt(); // kys Thread .I.
+		}
 		return;
+	}
+
+	private void cartaEspecial(ObjectOutputStream out, ObjectInputStream in, Carta jugada) throws IOException
+	{
+
+		if (jugada.getEspecial().equalsIgnoreCase("CAMBIO DE COLOR") || jugada.getEspecial().equalsIgnoreCase("TOMA CUATRO"))
+		{
+
+			out.writeUTF("Digite A para amarillo, V para verde, R para rojo, AZ para azul:");
+			out.flush();
+
+			System.out.println(in.readUTF());
+
+		}
+
 	}
 }

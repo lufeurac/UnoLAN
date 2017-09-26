@@ -4,17 +4,14 @@ import java.io.Serializable;
 
 public class Carta implements Serializable
 {
-
 	private int numero;
-	private String id;
 	private String color;
 	private String signo;
 	private String especial; // toma 2 , retorno , bloqueo , cambio color, toma
 							 // 4, NULL si no es esepcial
 
-	public Carta(String id, int numero, String color, String especial, String signo)
+	public Carta(int numero, String color, String especial, String signo)
 	{
-		this.id = id; 
 		this.numero = numero;
 		this.color = color;
 		this.especial = especial;
@@ -31,15 +28,6 @@ public class Carta implements Serializable
 		this.signo = signo;
 	}
 
-	public String getId()
-	{
-		return id;
-	}
-
-	public void setId(String id)
-	{
-		this.id = id;
-	}
 
 	public int getNumero()
 	{
@@ -71,9 +59,4 @@ public class Carta implements Serializable
 		this.especial = especial;
 	}
 
-	public String toString()
-	{
-		return "Carta [numero=" + numero + ", id=" + id + ", color=" + color + ", signo=" + signo + ", especial=" + especial + "]";
-	}
 }
-
