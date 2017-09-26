@@ -19,6 +19,10 @@ public class ClientSide
 
 	public static void main(String[] args) throws IOException
 	{
+		Jugador player = new Jugador();
+		boolean game_started = false;
+		boolean nick_accepted;
+
 		try
 		{
 			String serverAddress = JOptionPane.showInputDialog("Ingrese la ip del servidor:");
@@ -38,11 +42,26 @@ public class ClientSide
 			System.out.println(answer);
 			JOptionPane.showMessageDialog(null, answer);
 
-			answer = sc.nextLine();
-			out.writeUTF(answer);
-			out.flush();
-			Jugador player = (Jugador) in.readObject();
-			System.out.println(player.getNombre());
+			while (!game_started)
+			{
+				answer = sc.nextLine();
+				out.writeUTF(answer);
+				out.flush();
+				nick_accepted = in.readBoolean();
+				if (!nick_accepted)
+				{
+					System.out.println("Error: wrong command");
+					JOptionPane.showMessageDialog(null, "Comando mal escrito o nickname ocupado: /n Comando: <Nick (player_nickname)>");
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(null, "Nick aceptado, esperando a los demas jugadores");
+					player = (Jugador) in.readObject();
+					answer = in.readUTF();
+					System.out.println(answer);
+					game_started = true;
+				}
+			}
 
 			while (true)
 			{
@@ -57,7 +76,13 @@ public class ClientSide
 				String imp = "";
 				switch (answer)
 				{
-					case "mostar turno":
+					case "Ayuda":
+					{
+						// out.writeUTF(Game_logic_bkg.show_help());
+						out.flush();
+						break;
+					}
+					case "mostar mesa":
 					{
 						imp = in.readUTF();
 						System.out.println(imp);
@@ -138,7 +163,6 @@ public class ClientSide
 
 						break;
 					}
-
 					case "robar":
 					{
 
@@ -159,14 +183,12 @@ public class ClientSide
 						System.out.println(in.readUTF());
 
 						break;
-
 					}
-
 					case "no es tu turno":
-
+					{
 						System.out.println("No es tu turno");
 						break;
-
+					}
 					case "Exit":
 					{
 						System.out.println("cerrando");
@@ -182,7 +204,8 @@ public class ClientSide
 						}
 						break;
 					}
-
+					default:
+						break;
 				}
 
 				// System.out.println(answer);

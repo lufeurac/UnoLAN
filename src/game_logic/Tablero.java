@@ -1,5 +1,6 @@
 package game_logic;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,14 +17,14 @@ import java.util.Stack;
  *
  * @author Nicolás Restrepo
  */
-public class Tablero
+public class Tablero implements Serializable
 {
 
 	private Stack<Carta> mazo;
 	private List<Jugador> jugadores;
 	private Jugador turno_Actual;
 	private Jugador ganador;
-	private Stack<Carta> jugadas;
+	private Stack<Carta> jugadas;	
 
 	public Tablero(List<Jugador> jugadores)
 	{
