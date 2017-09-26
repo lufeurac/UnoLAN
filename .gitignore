@@ -46,3 +46,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 save_state.txt
+
+*.ucls
+src/game_logic/ClassDiagram.png
+*.png

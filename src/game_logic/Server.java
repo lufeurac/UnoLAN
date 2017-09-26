@@ -27,7 +27,7 @@ public class Server
 
 		boolean game_flag = false;
 
-		while (clientes.size() != 2)
+		while (clientes.size() != 4)
 		{
 			Socket s = null;
 			try
